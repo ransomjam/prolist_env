@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Shield, Mail, Lock, User, Truck, Store, UserCog, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { toast } from "sonner";
 
 // Demo accounts for easy testing
@@ -66,6 +66,12 @@ export default function Login() {
 
     setIsLoading(true);
 
+    if (!isSupabaseConfigured || !supabase) {
+      setError("Backend not configured. Please contact support.");
+      setIsLoading(false);
+      return;
+    }
+
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
@@ -85,6 +91,12 @@ export default function Login() {
   const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[0]) => {
     setIsLoading(true);
     setError("");
+
+    if (!isSupabaseConfigured || !supabase) {
+      setError("Backend not configured. Please contact support.");
+      setIsLoading(false);
+      return;
+    }
 
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: account.email,

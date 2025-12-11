@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Shield, User, Mail, Lock, MapPin, Camera, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { toast } from "sonner";
 
 export default function Register() {
@@ -63,6 +63,12 @@ export default function Register() {
     }
 
     setIsLoading(true);
+
+    if (!isSupabaseConfigured || !supabase) {
+      setError("Backend not configured. Please contact support.");
+      setIsLoading(false);
+      return;
+    }
 
     const redirectUrl = `${window.location.origin}/`;
 

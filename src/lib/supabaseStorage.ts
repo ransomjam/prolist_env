@@ -1,6 +1,6 @@
 // Supabase-powered storage functions (replaces localStorage mock data)
 
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { 
   Profile, 
   Post, 
@@ -12,9 +12,19 @@ import {
   UserRole 
 } from '@/types/database';
 
+// Helper to check if supabase is available
+function checkSupabase() {
+  if (!isSupabaseConfigured || !supabase) {
+    console.warn('Supabase not configured - returning empty data');
+    return false;
+  }
+  return true;
+}
+
 // ============ PROFILES ============
 
 export async function getProfile(userId: string): Promise<Profile | null> {
+  if (!checkSupabase()) return null;
   const { data } = await supabase
     .from('profiles')
     .select('*')
@@ -24,6 +34,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 export async function updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile | null> {
+  if (!checkSupabase()) return null;
   const { data, error } = await supabase
     .from('profiles')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -36,6 +47,7 @@ export async function updateProfile(userId: string, updates: Partial<Profile>): 
 }
 
 export async function getAllProfiles(): Promise<Profile[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('profiles')
     .select('*')
@@ -46,6 +58,7 @@ export async function getAllProfiles(): Promise<Profile[]> {
 // ============ USER ROLES ============
 
 export async function getUserRoles(userId: string): Promise<UserRole[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('user_roles')
     .select('role')
@@ -54,6 +67,7 @@ export async function getUserRoles(userId: string): Promise<UserRole[]> {
 }
 
 export async function addUserRole(userId: string, role: UserRole): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('user_roles')
     .insert({ user_id: userId, role });
@@ -61,6 +75,7 @@ export async function addUserRole(userId: string, role: UserRole): Promise<void>
 }
 
 export async function hasRole(userId: string, role: UserRole): Promise<boolean> {
+  if (!checkSupabase()) return false;
   const { data } = await supabase
     .rpc('has_role', { _user_id: userId, _role: role });
   return data || false;
@@ -69,6 +84,7 @@ export async function hasRole(userId: string, role: UserRole): Promise<boolean> 
 // ============ POSTS ============
 
 export async function getPosts(): Promise<Post[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('posts')
     .select(`
@@ -80,6 +96,7 @@ export async function getPosts(): Promise<Post[]> {
 }
 
 export async function getPost(postId: string): Promise<Post | null> {
+  if (!checkSupabase()) return null;
   const { data } = await supabase
     .from('posts')
     .select(`
@@ -92,6 +109,7 @@ export async function getPost(postId: string): Promise<Post | null> {
 }
 
 export async function getSellerPosts(sellerId: string): Promise<Post[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('posts')
     .select('*')
@@ -101,6 +119,7 @@ export async function getSellerPosts(sellerId: string): Promise<Post[]> {
 }
 
 export async function createPost(post: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Promise<Post | null> {
+  if (!checkSupabase()) return null;
   const { data, error } = await supabase
     .from('posts')
     .insert(post)
@@ -112,6 +131,7 @@ export async function createPost(post: Omit<Post, 'id' | 'created_at' | 'updated
 }
 
 export async function updatePost(postId: string, updates: Partial<Post>): Promise<Post | null> {
+  if (!checkSupabase()) return null;
   const { data, error } = await supabase
     .from('posts')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -124,6 +144,7 @@ export async function updatePost(postId: string, updates: Partial<Post>): Promis
 }
 
 export async function deletePost(postId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('posts')
     .delete()
@@ -134,6 +155,7 @@ export async function deletePost(postId: string): Promise<void> {
 // ============ TRANSACTIONS ============
 
 export async function getTransactions(): Promise<Transaction[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('transactions')
     .select(`
@@ -148,6 +170,7 @@ export async function getTransactions(): Promise<Transaction[]> {
 }
 
 export async function getTransaction(transactionId: string): Promise<Transaction | null> {
+  if (!checkSupabase()) return null;
   const { data } = await supabase
     .from('transactions')
     .select(`
@@ -163,6 +186,7 @@ export async function getTransaction(transactionId: string): Promise<Transaction
 }
 
 export async function getBuyerTransactions(buyerId: string): Promise<Transaction[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('transactions')
     .select(`
@@ -176,6 +200,7 @@ export async function getBuyerTransactions(buyerId: string): Promise<Transaction
 }
 
 export async function getSellerTransactions(sellerId: string): Promise<Transaction[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('transactions')
     .select(`
@@ -189,6 +214,7 @@ export async function getSellerTransactions(sellerId: string): Promise<Transacti
 }
 
 export async function getAgentTransactions(agentId: string): Promise<Transaction[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('transactions')
     .select(`
@@ -203,6 +229,7 @@ export async function getAgentTransactions(agentId: string): Promise<Transaction
 }
 
 export async function createTransaction(transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction | null> {
+  if (!checkSupabase()) return null;
   const { data, error } = await supabase
     .from('transactions')
     .insert(transaction)
@@ -218,6 +245,7 @@ export async function updateTransactionStatus(
   status: TransactionStatus,
   additionalUpdates?: Partial<Transaction>
 ): Promise<Transaction | null> {
+  if (!checkSupabase()) return null;
   const updates: Partial<Transaction> = {
     status,
     updated_at: new Date().toISOString(),
@@ -243,6 +271,7 @@ export async function updateTransactionStatus(
 }
 
 export async function assignAgent(transactionId: string, agentId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('transactions')
     .update({ 
@@ -261,6 +290,7 @@ export async function uploadVerificationFile(
   fileType: 'id_card' | 'selfie', 
   file: File
 ): Promise<string> {
+  if (!checkSupabase()) throw new Error('Backend not configured');
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}/${fileType}_${Date.now()}.${fileExt}`;
   
@@ -289,6 +319,7 @@ export async function uploadVerificationFile(
 }
 
 export async function getVerificationFiles(userId: string): Promise<VerificationFile[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('verification_files')
     .select('*')
@@ -297,6 +328,7 @@ export async function getVerificationFiles(userId: string): Promise<Verification
 }
 
 export async function getPendingVerifications(): Promise<Profile[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('profiles')
     .select('*')
@@ -305,6 +337,7 @@ export async function getPendingVerifications(): Promise<Profile[]> {
 }
 
 export async function approveVerification(userId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('profiles')
     .update({ 
@@ -320,6 +353,7 @@ export async function approveVerification(userId: string): Promise<void> {
 }
 
 export async function rejectVerification(userId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('profiles')
     .update({ 
@@ -334,6 +368,7 @@ export async function rejectVerification(userId: string): Promise<void> {
 // ============ DELIVERY LOGS ============
 
 export async function addDeliveryLog(log: Omit<DeliveryLog, 'id' | 'created_at'>): Promise<DeliveryLog | null> {
+  if (!checkSupabase()) return null;
   const { data, error } = await supabase
     .from('delivery_logs')
     .insert(log)
@@ -345,6 +380,7 @@ export async function addDeliveryLog(log: Omit<DeliveryLog, 'id' | 'created_at'>
 }
 
 export async function getDeliveryLogs(transactionId: string): Promise<DeliveryLog[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('delivery_logs')
     .select(`
@@ -359,6 +395,7 @@ export async function getDeliveryLogs(transactionId: string): Promise<DeliveryLo
 // ============ NOTIFICATIONS ============
 
 export async function getNotifications(userId: string): Promise<Notification[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('notifications')
     .select('*')
@@ -368,6 +405,7 @@ export async function getNotifications(userId: string): Promise<Notification[]> 
 }
 
 export async function createNotification(notification: Omit<Notification, 'id' | 'created_at'>): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('notifications')
     .insert(notification);
@@ -375,6 +413,7 @@ export async function createNotification(notification: Omit<Notification, 'id' |
 }
 
 export async function markNotificationRead(notificationId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('notifications')
     .update({ read: true })
@@ -383,6 +422,7 @@ export async function markNotificationRead(notificationId: string): Promise<void
 }
 
 export async function markAllNotificationsRead(userId: string): Promise<void> {
+  if (!checkSupabase()) return;
   const { error } = await supabase
     .from('notifications')
     .update({ read: true })
@@ -392,6 +432,7 @@ export async function markAllNotificationsRead(userId: string): Promise<void> {
 }
 
 export async function getUnreadNotificationCount(userId: string): Promise<number> {
+  if (!checkSupabase()) return 0;
   const { count } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
@@ -403,6 +444,7 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
 // ============ AGENTS ============
 
 export async function getAgents(): Promise<Profile[]> {
+  if (!checkSupabase()) return [];
   const { data } = await supabase
     .from('user_roles')
     .select('user_id')
@@ -423,6 +465,7 @@ export async function getAgents(): Promise<Profile[]> {
 // ============ UPLOAD IMAGE ============
 
 export async function uploadPostImage(sellerId: string, file: File): Promise<string> {
+  if (!checkSupabase()) throw new Error('Backend not configured');
   const fileExt = file.name.split('.').pop();
   const fileName = `${sellerId}/${Date.now()}.${fileExt}`;
   

@@ -8,7 +8,6 @@ import { ProfileSettingsSheet } from "@/components/ProfileSettingsSheet";
 import { useAuth } from "@/hooks/useAuth";
 import { getSellerPosts, getSellerTransactions, formatPriceXAF } from "@/lib/supabaseStorage";
 import { Post } from "@/types/database";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import {
   MapPin,
