@@ -62,7 +62,22 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Frontend on Vercel
+1. Connect your Git repository to [Vercel](https://vercel.com).
+2. Vercel will auto-detect the Vite configuration.
+3. Set environment variables in Vercel dashboard:
+   - `VITE_SUPABASE_URL`: Your self-hosted Supabase URL (e.g., `http://your-server-ip:8000`)
+   - `VITE_SUPABASE_ANON_KEY`: Your generated anon key from self-hosted Supabase
+4. Deploy – the app will be live at a Vercel domain.
+
+### Backend: Self-Hosted Supabase on Coolify
+1. Set up a server in [Coolify](https://coolify.io).
+2. Deploy the official Supabase Docker Compose stack (from [Supabase repo](https://github.com/supabase/supabase/tree/master/docker)).
+3. Configure `.env` with secure secrets (see Supabase docs).
+4. Run `DATABASE_SCHEMA.sql` in Supabase Studio to set up the database.
+5. Access APIs at `http://your-server-ip:8000`.
+
+For detailed steps, see the deployment guide in the project docs.
 
 ## Can I connect a custom domain to my Lovable project?
 
